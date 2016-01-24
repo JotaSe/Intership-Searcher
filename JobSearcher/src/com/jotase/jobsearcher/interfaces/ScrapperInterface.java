@@ -4,17 +4,15 @@
  * and open the template in the editor.
  */
 
-package com.jotase.jobsearcher.models;
+package com.jotase.jobsearcher.interfaces;
+
+import com.jaunt.util.MultiMap;
 
 /**
  *
  * @author JotaSe
  */
-public class Job extends Metadata{
-    private String title;
-    private String description;
-    private String url;
-    private String position;
-    private String type;
-
+public interface ScrapperInterface {
+    public void searchJobs(MultiMap params);
+    public void extractAttributes();
 }

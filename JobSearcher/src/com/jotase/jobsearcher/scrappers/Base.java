@@ -6,12 +6,15 @@
 
 package com.jotase.jobsearcher.scrappers;
 
+import com.jotase.jobsearcher.interfaces.REST;
 import com.jaunt.Document;
 import com.jaunt.ResponseException;
 import com.jaunt.UserAgent;
 import com.jotase.jobsearcher.models.Job;
-import java.util.HashMap;
+import com.jaunt.util.MultiMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,22 +23,33 @@ import java.util.logging.Logger;
  * @author JotaSe
  */
 public class Base implements REST{
-    final private int POST = 0;
+    final int POST = 0;
     final private int GET = 1;
     final private int PUT = 2;
     final private int DELETE = 3;
     final private UserAgent agent = new UserAgent();
-    private Document page;
-    private String url;
+    Document page;
+    String url;
     private String loginUrl;
     private List<Job> jobs;
-    
-    public Document login(HashMap loginParams){
-        return executeAction(POST, loginUrl, loginParams, null);
+
+    public String getLoginUrl() {
+        return loginUrl;
     }
 
-    private String parseParams(HashMap params){
-        return "";
+    public void setLoginUrl(String loginUrl) {
+        this.loginUrl = loginUrl;
+    }
+    
+    public Document login(MultiMap loginParams){
+        return loginParams.size() == 0 ? null : executeAction(POST, loginUrl, loginParams, null);
+    }
+    
+    private String parseParams(MultiMap params){
+        StringBuilder paramsString = new StringBuilder();
+        paramsString.append('?');
+        paramsString.append(params.toString("=", "&", false, ""));
+        return paramsString.toString();
     }
     
     public String getUrl() {
@@ -55,6 +69,7 @@ public class Base implements REST{
     }
 
     public Document getPage() {
+        page = executeAction(GET, url, null, null);
         return page;
     }
 
@@ -82,12 +97,12 @@ public class Base implements REST{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    private String hashExist(HashMap hash){
-        return hash.isEmpty() ? "" : parseParams(hash);
+    private String hashExist(MultiMap hash){
+        return hash.size() == 0 ? "" : parseParams(hash);
     }
 
     @Override
-    public Document executeAction(int Action, String url, HashMap params, HashMap headers){
+    public Document executeAction(int Action, String url, MultiMap params, MultiMap headers){
         try {
             String paramsString = hashExist(params);
             String headersString = hashExist(headers);
